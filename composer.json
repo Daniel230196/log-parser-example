@@ -1,0 +1,19 @@
+{
+    "name": "daniel/roistat",
+    "description": "devtest roistat",
+    "type": "project",
+    "authors": [
+        {
+            "name": "Daniel230196",
+            "email": "dan-n-70s@mail.ru"
+        }
+    ],
+    "require": {
+      "ext-json": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "App"
+        }
+    }
+}
