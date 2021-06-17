@@ -11,10 +11,9 @@ namespace App\Models;
  */
 abstract class Model
 {
-
-    public function __get($name)
-    {
-        return property_exists($this,$name) ? $this->$name : null;
-    }
-
+    /**
+     * Вернуть массив данных модели
+     * @return array
+     */
+    abstract public function getData(): array;
 }

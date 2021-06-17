@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App;
 
 
-use App\Adapters\LogAdapterInterface;
+use App\Adapters\LogAdapter;
 use App\Exceptions\LogHandlerException;
 use App\Exceptions\LogParserAdapterException;
 use App\Handlers\LogHandlerInterface;
@@ -16,9 +16,9 @@ use App\Handlers\LogHandlerInterface;
  */
 class Parser
 {
-    protected LogAdapterInterface $adapter;
+    protected LogAdapter $adapter;
 
-    public function __construct(LogAdapterInterface $adapter)
+    public function __construct(LogAdapter $adapter)
     {
         $this->adapter = $adapter;
     }
@@ -31,6 +31,7 @@ class Parser
     public function setHandler(LogHandlerInterface $handler): self
     {
         $this->adapter->setHandler($handler);
+
         return $this;
     }
 
@@ -53,10 +54,11 @@ class Parser
 
             $this->adapter->resolve($outputType);
         }catch (LogParserAdapterException $exception){
-            echo 'Error: ' . $exception->getCode() . '</br>' . $exception->getMessage();
+            echo 'Error: ' . $exception->getCode() . PHP_EOL . $exception->getMessage() . PHP_EOL;
             exit;
         }catch (LogHandlerException $exception){
-            echo 'Handler crushed with status ' . $exception->getCode() . '</br>' . 'Reason: ' . $exception->getMessage();
+            echo 'Handler crushed with status ' . $exception->getCode() . PHP_EOL . 'Reason: ' . $exception->getMessage() . PHP_EOL;
+            exit;
         }
 
     }
@@ -78,6 +80,7 @@ class Parser
             }
 
             preg_match($pattern,$line,$result);
+
             yield $this->adapter->createModel($result);
         }
 

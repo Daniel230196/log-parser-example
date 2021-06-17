@@ -18,7 +18,7 @@ use App\Models\Model;
  * Class AccessLogAdapter
  * @package App\Adapters
  */
-class AccessLogAdapter implements LogAdapterInterface
+class AccessLogAdapter extends LogAdapter
 {
     protected static string $linePattern = "/(\S+) (\S+) (\S+) \[([^:]+):(\d+:\d+:\d+) ([^\]]+)\] \"(\S+) (.*?) (\S+)\" (\S+) (\S+) (\".*?\") (\".*?\")/";
     protected string $path;
@@ -44,14 +44,6 @@ class AccessLogAdapter implements LogAdapterInterface
     }
 
     /**
-     * @param LogHandlerInterface $handler
-     */
-    public function setHandler(LogHandlerInterface $handler): void
-    {
-        $this->handler = $handler;
-    }
-
-    /**
      * @param Model $model
      * @throws LogHandlerException
      */
@@ -61,15 +53,6 @@ class AccessLogAdapter implements LogAdapterInterface
     }
 
     /**
-     * @return string
-     */
-    public function getLinePattern(): string
-    {
-        return static::$linePattern;
-    }
-
-
-    /**
      * Определяет аргументы модели, в соотв с шаблоном,
      * создаёт модель
      * @param array $modelArguments
@@ -77,21 +60,22 @@ class AccessLogAdapter implements LogAdapterInterface
      */
     public function createModel(array $modelArguments): LogLineModel
     {
-        $url = (string)$modelArguments[8];
-        $status = (int)$modelArguments[10];
+        $url         = (string)$modelArguments[8];
+        $status      = (int)$modelArguments[10];
         $contentSize = (int)$modelArguments[11];
-        $referrer = (string)$modelArguments[12];
-        $agent = (string)$modelArguments[13];
+        $referrer    = (string)$modelArguments[12];
+        $agent       = (string)$modelArguments[13];
+
         return new LogLineModel($url, $status, $contentSize, $referrer, $agent);
     }
 
     /**
      * Разрешить р-тат. Тип вывода, в соотв с аргументом
      * @param string $outputType
-     * @return mixed|void
+     * @return void
      * @throws LogParserAdapterException
      */
-    public function resolve(string $outputType = 'json')
+    public function resolve(string $outputType = 'json'): void
     {
         if(is_null($this->handledResult)){
             throw new LogParserAdapterException('No handled result found.' . __CLASS__ .  '::handleModel should be called', 400);
@@ -99,11 +83,12 @@ class AccessLogAdapter implements LogAdapterInterface
 
         switch ($outputType){
             case 'array':
-                var_dump($this->handledResult);
                 break;
             case  'json':
                 echo json_encode($this->handledResult, JSON_PRETTY_PRINT);
                 break;
+            default:
+                throw new LogParserAdapterException('Adapter conflict - output type \'' . $outputType .  '\' not supported', 400);
         }
     }
 }

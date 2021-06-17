@@ -31,13 +31,20 @@ class LogLineModel extends Model
         $this->userAgent   = $userAgent;
     }
 
+
     /**
-     * @param $name
-     * @return mixed
+     * Данные модели строки в виде ассоциатинвого массива
+     * @return array
      */
-    public function __get($name)
+    public function getData(): array
     {
-        return property_exists($this,$name) ? $this->$name : null;
+        return [
+            'url'         => $this->url,
+            'status'      => $this->status,
+            'contentSize' => $this->contentSize,
+            'referrer'    => $this->referrer,
+            'userAgent'   => $this->userAgent,
+        ];
     }
 
 }

@@ -10,40 +10,47 @@ use App\Handlers\LogHandlerInterface;
 use App\Models\Model;
 
 /**
- * Interface LogAdapterInterface
+ * Class LogAdapter
  * @package App\Adapters
  */
-interface LogAdapterInterface
+abstract class LogAdapter
 {
     /**
-     * @param $model
+     * @param Model $model
      */
-    public function handleModel(Model $model): void;
+    abstract public function handleModel(Model $model): void;
+
     /**
      * Путь к файлу лога
      * @return string
      * @throws LogParserAdapterException
      */
-    public function getPath(): string;
+    abstract public function getPath(): string;
 
     /**
      * Создать модель строки
      * @param array $modelArguments
      * @return Model
      */
-    public function createModel(array $modelArguments): Model;
+    abstract public function createModel(array $modelArguments): Model;
 
     /**
      * Регулярка строки
      * @return string
      */
-    public function getLinePattern(): string;
+    final public function getLinePattern(): string
+    {
+        return static::$linePattern;
+    }
 
     /**
-     * Добавить обработчика
+     * Добавить обработчик
      * @param LogHandlerInterface $handler
      */
-    public function setHandler(LogHandlerInterface $handler): void;
+    final public function setHandler(LogHandlerInterface $handler): void
+    {
+        $this->handler = $handler;
+    }
 
     /**
      * Получить результат обработки запроса в определенном формате
@@ -51,5 +58,5 @@ interface LogAdapterInterface
      * @return mixed
      * @throws LogParserAdapterException
      */
-    public function resolve(string $outputType = 'json');
+    abstract public function resolve(string $outputType = 'json');
 }

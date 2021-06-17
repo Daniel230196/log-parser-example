@@ -54,14 +54,16 @@ class RoistatLogHandler implements LogHandlerInterface
             );
         }
 
-        $this->handleUrl((string)$lineModel->url)
-            ->handleStatus((int)$lineModel->status)
-            ->handleCrawlers($lineModel);
+        $lineData = $lineModel->getData();
+        $this->handleUrl((string)$lineData['url'])
+            ->handleStatus((int)$lineData['status'])
+            ->handleCrawlers((string)$lineData['userAgent']);
         $this->result['views']++;
         $this->result['urls'] = count($this->uniqUrls);
-        $this->result['traffic'] += ($lineModel->status >= 200 && $lineModel->status < 300) ?
-            $lineModel->contentSize :
+        $this->result['traffic'] += ($lineData['status'] >= 200 && $lineData['status'] < 300) ?
+            $lineData['contentSize'] :
             0;
+
         return $this->result;
     }
 
@@ -73,6 +75,7 @@ class RoistatLogHandler implements LogHandlerInterface
     private function handleUrl(string $url): self
     {
         in_array($url, $this->uniqUrls) ?: $this->uniqUrls[] = $url;
+
         return $this;
     }
 
@@ -92,12 +95,12 @@ class RoistatLogHandler implements LogHandlerInterface
 
     /**
      * При наличии крулеров, учитывает их в результате
-     * @param Model $model
-     * @return $this
+     * @param string $userAgent
+     * @return RoistatLogHandler
      */
-    private function handleCrawlers(Model $model): self
+    private function handleCrawlers(string $userAgent): self
     {
-        $matches = preg_grep('/(bot|spider|Bot)/', explode(' ', $model->userAgent));
+        $matches = preg_grep('/(bot|spider|Bot)/', explode(' ', $userAgent));
         if(count($matches) > 0){
             foreach ($matches as $crawlerName){
                 if(preg_match('/(google)/i', $crawlerName)){
@@ -111,6 +114,7 @@ class RoistatLogHandler implements LogHandlerInterface
                 }
             }
         }
+
         return $this;
     }
 
